@@ -22,19 +22,57 @@ SUFRA_CRIMSON  = "#FF4D4D"
 SAFFRON_GOLD   = "#FFB020" 
 MINT_GARNISH   = "#22C55E" 
 
-# Injecting comprehensive dark interface CSS styles
+# Injecting comprehensive dark interface CSS styles with safe icon exceptions
 st.markdown(f"""
 <style>
-    .stApp, p, span, label, li, td, th, div, h1, h2, h3, h4 {{
+    /* Safely colorize text without breaking Streamlit's internal icons */
+    .stApp, p, label, li, td, th, h1, h2, h3, h4 {{
         color: #FFFFFF !important;
         font-family: 'Inter', sans-serif !important;
     }}
-    .stApp {{ background-color: {DARK_BG}; }}
-    header[data-testid="stHeader"] {{ background-color: {DARK_BG} !important; }}
-    section[data-testid="stSidebar"] {{ background-color: #0E1731 !important; border-right: 1px solid #232E52; }}
-    div[data-baseweb="select"] {{ background-color: #151F3C !important; border-radius: 8px; }}
-    div[data-baseweb="tag"] {{ background-color: #2D395E !important; border-radius: 6px; }}
     
+    /* Apply color to spans and divs, but DO NOT force font-family to protect icons */
+    div, span {{
+        color: #FFFFFF !important;
+    }}
+    
+    /* Restore Streamlit's expander arrow icons */
+    span[data-baseweb="icon"] {{
+        font-family: "Material Symbols Rounded" !important;
+    }}
+    
+    /* Global App Background */
+    .stApp {{ background-color: {DARK_BG}; }}
+    
+    /* Top Blank Header Bar Styling */
+    header[data-testid="stHeader"] {{
+        background-color: {DARK_BG} !important;
+    }}
+    
+    /* Left Sidebar Container Styling */
+    section[data-testid="stSidebar"] {{
+        background-color: #0E1731 !important;
+        border-right: 1px solid #232E52;
+    }}
+    
+    section[data-testid="stSidebar"] div[data-testid="stMarkdownContainer"] p {{
+        color: #FFFFFF !important;
+    }}
+    
+    /* Left Filters Styling */
+    div[data-baseweb="select"] {{
+        background-color: #151F3C !important;
+        border-radius: 8px;
+    }}
+    div[data-baseweb="select"] div {{
+        color: #FFFFFF !important;
+    }}
+    div[data-baseweb="tag"] {{
+        background-color: #2D395E !important;
+        border-radius: 6px;
+    }}
+    
+    /* Elegant Dark Executive Cards */
     .board-card {{
         background-color: {CARD_BG};
         padding: 24px;
@@ -43,7 +81,15 @@ st.markdown(f"""
         border: 1px solid #3A4766;
         margin-bottom: 20px;
     }}
-    .board-card-accent {{ border-top: 5px solid {SUFRA_CRIMSON}; }}
+    .board-card-accent {{
+        border-top: 5px solid {SUFRA_CRIMSON};
+    }}
+    
+    .stDataFrame div {{
+        color: #FFFFFF !important;
+    }}
+    
+    /* Insight Box Styling */
     .insight-box {{
         background-color: rgba(34, 197, 94, 0.1);
         border-left: 4px solid {MINT_GARNISH};
@@ -51,11 +97,11 @@ st.markdown(f"""
         border-radius: 4px;
         margin-bottom: 20px;
     }}
+    
     [data-testid="stMetricValue"] {{ font-size: 34px !important; font-weight: 800 !important; color: #FFFFFF !important; }}
     [data-testid="stMetricLabel"] {{ font-size: 13px !important; text-transform: uppercase; letter-spacing: 0.8px; color: #FFFFFF !important; font-weight: 600; }}
 </style>
 """, unsafe_allow_html=True)
-
 # ==========================================
 # DATA LOADING & CACHING PIPELINE
 # ==========================================
@@ -125,8 +171,7 @@ def apply_board_theme(fig):
         plot_bgcolor='rgba(0,0,0,0)',
         font=dict(family="Inter, sans-serif", size=12, color="#FFFFFF"),
         title=dict(font=dict(size=16, color="#FFFFFF", weight='bold')),
-        margin=dict(t=50, b=40, l=40, r=40),
-        xaxis_tickangle=-45  # Prevents X-axis text overlap
+        margin=dict(t=50, b=40, l=40, r=40)
     )
     fig.update_yaxes(automargin=True)
     fig.update_xaxes(automargin=True)
@@ -147,30 +192,38 @@ page = st.sidebar.radio("Go to Slide:", [
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p style='font-size: 12px; font-weight: bold; text-transform: uppercase; color: #FFFFFF; letter-spacing: 0.5px;'>🎛️ Master Control Filters</p>", unsafe_allow_html=True)
 
+# 1. TEMPORAL & SEASONAL FILTERS
 with st.sidebar.expander("📅 Temporal & Seasonal", expanded=True):
     min_date, max_date = df_clean['date'].min(), df_clean['date'].max()
     date_range = st.date_input("Date Range:", [min_date, max_date], min_value=min_date, max_value=max_date)
     ramadan_filter = st.radio("Seasonality:", ["All Periods", "Ramadan Only", "Non-Ramadan Only"])
 
+# 2. GEOGRAPHIC & PRODUCT FILTERS
 with st.sidebar.expander("📍 Geography & Catalog", expanded=True):
     selected_zones = st.multiselect("Operating Zones:", options=df_clean['zone'].unique().tolist(), default=df_clean['zone'].unique().tolist())
     selected_cuisines = st.multiselect("Cuisine Categories:", options=df_clean['cuisine'].unique().tolist(), default=df_clean['cuisine'].unique().tolist())
 
+# 3. DEMOGRAPHIC & CHANNEL FILTERS
 with st.sidebar.expander("👥 Demographics & Tech", expanded=False):
     selected_cust = st.multiselect("Customer Cohort:", options=df_clean['customer_type'].unique().tolist(), default=df_clean['customer_type'].unique().tolist())
     selected_channels = st.multiselect("Order Channel:", options=df_clean['order_channel'].unique().tolist(), default=df_clean['order_channel'].unique().tolist())
     selected_devices = st.multiselect("Device Platform:", options=df_clean['device_platform'].unique().tolist(), default=df_clean['device_platform'].unique().tolist())
 
+# 4. OPERATIONAL & FINANCIAL FILTERS
 with st.sidebar.expander("💳 Operations & Ledger", expanded=False):
     selected_status = st.multiselect("Order Status:", options=df_clean['order_status'].unique().tolist(), default=df_clean['order_status'].unique().tolist())
     selected_payments = st.multiselect("Payment Method:", options=df_clean['payment_method'].unique().tolist(), default=df_clean['payment_method'].unique().tolist())
 
-# Apply Engine Pipeline
+# ---------------------------------------------------------
+# APPLYING THE MASTER FILTERS (Engine Pipeline)
+# ---------------------------------------------------------
+# Handle dynamic date ranges safely to prevent crashes
 if len(date_range) == 2:
     start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
 else:
     start_date, end_date = min_date, max_date
 
+# Construct the core logical mask
 mask = (
     (df_clean['date'] >= start_date) & 
     (df_clean['date'] <= end_date) &
@@ -183,13 +236,51 @@ mask = (
     (df_clean['payment_method'].isin(selected_payments))
 )
 
+# Apply standalone Boolean overrides
 if ramadan_filter == "Ramadan Only":
     mask = mask & (df_clean['is_ramadan'] == True)
 elif ramadan_filter == "Non-Ramadan Only":
     mask = mask & (df_clean['is_ramadan'] == False)
 
+# Finalize the filtered dataframe engine
 df_filtered = df_clean[mask]
 
+# Stop execution elegantly if filters result in zero data
+if df_filtered.empty:
+    st.warning("⚠️ No data available for this specific combination of filters. Please adjust your parameters.")
+    st.stop()
+# ---------------------------------------------------------
+# APPLYING THE MASTER FILTERS (Engine Pipeline)
+# ---------------------------------------------------------
+# Handle dynamic date ranges safely to prevent crashes
+if len(date_range) == 2:
+    start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+else:
+    start_date, end_date = min_date, max_date
+
+# Construct the core logical mask
+mask = (
+    (df_clean['date'] >= start_date) & 
+    (df_clean['date'] <= end_date) &
+    (df_clean['zone'].isin(selected_zones)) &
+    (df_clean['cuisine'].isin(selected_cuisines)) &
+    (df_clean['customer_type'].isin(selected_cust)) &
+    (df_clean['order_channel'].isin(selected_channels)) &
+    (df_clean['device_platform'].isin(selected_devices)) &
+    (df_clean['order_status'].isin(selected_status)) &
+    (df_clean['payment_method'].isin(selected_payments))
+)
+
+# Apply standalone Boolean overrides
+if ramadan_filter == "Ramadan Only":
+    mask = mask & (df_clean['is_ramadan'] == True)
+elif ramadan_filter == "Non-Ramadan Only":
+    mask = mask & (df_clean['is_ramadan'] == False)
+
+# Finalize the filtered dataframe engine
+df_filtered = df_clean[mask]
+
+# Stop execution elegantly if filters result in zero data
 if df_filtered.empty:
     st.warning("⚠️ No data available for this specific combination of filters. Please adjust your parameters.")
     st.stop()
@@ -199,7 +290,7 @@ if df_filtered.empty:
 # ==========================================
 if page == "📌 Expansion Strategy Mandate":
     st.title("🎯 Strategic Regional Expansion Recommendation")
-    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Executive overview of geographic financial health, determining the optimal region for capital expansion based on actual realized profit rather than misleading top-line gross volumes.</p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Executive overview of geographic financial health, determining the optimal region for capital expansion based on actual realized profit rather than misleading top-line gross volumes.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
@@ -249,12 +340,9 @@ if page == "📌 Expansion Strategy Mandate":
         st.markdown("<div class='board-card'>", unsafe_allow_html=True)
         st.markdown("### 🔍 Strategic Context: The Gross vs. Net Profit Illusion")
         fig_illusion = go.Figure()
-        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['gross_order_value'], name='Gross Order Value (Mirage)', marker_color='#3A4766', text=zone_perf['gross_order_value'], texttemplate='%{text:,.0f} AED'))
-        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['total_profit'], name='True Net Profit Retained', marker_color=MINT_GARNISH, text=zone_perf['total_profit'], texttemplate='%{text:,.0f} AED'))
-        
-        # FIXED: barmode='group' prevents overlapping. textposition='auto' prevents text clashing.
-        fig_illusion.update_traces(textposition='auto')
-        fig_illusion.update_layout(barmode='group', title="Gross Transaction Volume vs. Realized Net Profit by Zone", yaxis_title="Monetary Value (AED)", margin=dict(t=50, b=40, l=40, r=40))
+        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['gross_order_value'], name='Gross Order Value (Mirage)', marker_color='#3A4766', text=zone_perf['gross_order_value'], texttemplate='%{text:,.0f} AED', textposition='outside'))
+        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['total_profit'], name='True Net Profit Retained', marker_color=MINT_GARNISH, text=zone_perf['total_profit'], texttemplate='%{text:,.0f} AED', textposition='outside'))
+        fig_illusion.update_layout(barmode='overlay', title="Gross Transaction Volume vs. Realized Net Profit by Zone", yaxis_title="Monetary Value (AED)", margin=dict(t=50, b=40, l=40, r=40))
         fig_illusion.update_yaxes(range=[min_profit_bound, zone_perf['gross_order_value'].max() * 1.15]) 
         fig_illusion = apply_board_theme(fig_illusion)
         st.plotly_chart(fig_illusion, use_container_width=True)
@@ -264,8 +352,8 @@ if page == "📌 Expansion Strategy Mandate":
         fig_zone_prof = px.bar(zone_perf, x='zone', y='total_profit', color='avg_rating',
                                labels={'total_profit': 'Net Profit Retained (AED)', 'zone': 'Dubai Operating Zone', 'avg_rating': 'Customer Score'},
                                title="Net Profit Contribution Margin by Territory vs Regional Customer Quality Index",
-                               color_continuous_scale=[SAFFRON_GOLD, SUFRA_CRIMSON])
-        fig_zone_prof.update_traces(textposition='auto', texttemplate='%{y:,.0f} AED')
+                               color_continuous_scale=[SAFFRON_GOLD, SUFRA_CRIMSON], text_auto=',.0f')
+        fig_zone_prof.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{y:,.0f} AED')
         fig_zone_prof.update_yaxes(range=[min_profit_bound, zone_perf['total_profit'].max() * 1.15])
         fig_zone_prof = apply_board_theme(fig_zone_prof)
         st.plotly_chart(fig_zone_prof, use_container_width=True)
@@ -276,12 +364,12 @@ if page == "📌 Expansion Strategy Mandate":
 # ==========================================
 elif page == "👥 Target Customer Insights":
     st.title("👥 Cohort Demographics, Preferred Channels & Interfaces")
-    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Behavioral analysis of target customer cohorts, evaluating payment framework adoption, preferred ordering channels, and digital ecosystem access points to inform product and marketing development.</p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Behavioral analysis of target customer cohorts, evaluating payment framework adoption, preferred ordering channels, and digital ecosystem access points to inform product and marketing development.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
         <b>💡 Executive Conclusion: Cohort & Channel Mechanics</b><br>
-        Despite perfectly balanced payment and device preferences, <b>Repeat customers are the structural backbone of SufraEats</b>, generating nearly double the transaction volume compared to New users. Across both segments, home delivery heavily dominates over dine-in and pickup channels.
+        Despite perfectly balanced payment and device preferences, <b>Repeat customers are the structural backbone of SufraEats</b>, generating nearly double the transaction volume (29,779 orders) compared to New users. Across both segments, home delivery heavily dominates over dine-in and pickup channels.
     </div>
     """, unsafe_allow_html=True)
     st.markdown("---")
@@ -293,7 +381,7 @@ elif page == "👥 Target Customer Insights":
         fig1 = go.Figure(data=[go.Pie(
             labels=cohort_counts['customer_type'].str.upper(), 
             values=cohort_counts['count'],
-            hole=.45, textinfo='label+percent', textposition='auto',
+            hole=.45, textinfo='label+percent', textposition='outside',
             marker=dict(colors=[SUFRA_CRIMSON, SAFFRON_GOLD], line=dict(color=CARD_BG, width=2))
         )])
         fig1.update_layout(title="Order Concentration Split: New vs. Repeat Base")
@@ -307,7 +395,7 @@ elif page == "👥 Target Customer Insights":
         fig3 = go.Figure(data=[go.Pie(
             labels=channel_counts['order_channel'].str.upper(), 
             values=channel_counts['count'],
-            textinfo='label+percent', textposition='auto',
+            textinfo='label+percent', textposition='outside',
             marker=dict(colors=[SUFRA_CRIMSON, "#3A4766", SAFFRON_GOLD], line=dict(color=CARD_BG, width=2))
         )])
         fig3.update_layout(title="Distribution Channel Preference Share Matrix")
@@ -326,7 +414,7 @@ elif page == "👥 Target Customer Insights":
                       color_discrete_map={'new': "#5D6D7E", 'repeat': SUFRA_CRIMSON},
                       title="Preferred Settlement Frameworks Across Target Cohorts",
                       labels={'order_volume': 'Total Processed Transactions', 'payment_method': 'Payment Framework', 'customer_type': 'Cohort'})
-        fig2.update_traces(textposition='auto', texttemplate='%{text:,}')
+        fig2.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{text:,}')
         fig2.update_yaxes(range=[0, pay_mix['order_volume'].max() * 1.15])
         fig2 = apply_board_theme(fig2)
         st.plotly_chart(fig2, use_container_width=True)
@@ -338,12 +426,13 @@ elif page == "👥 Target Customer Insights":
         fig4 = go.Figure(data=[go.Pie(
             labels=device_mix['device_platform'].str.upper(), 
             values=device_mix['count'],
-            textinfo='label+percent', textposition='auto',
+            textinfo='label+percent', textposition='outside',
             marker=dict(colors=[SUFRA_CRIMSON, SAFFRON_GOLD, "#5D6D7E"], line=dict(color=CARD_BG, width=2))
         )])
         fig4.update_layout(title="Ecosystem Access Device Point Proportions")
         fig4 = apply_board_theme(fig4)
         st.plotly_chart(fig4, use_container_width=True)
+        st.sidebar.markdown("---")
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
@@ -351,20 +440,20 @@ elif page == "👥 Target Customer Insights":
 # ==========================================
 elif page == "📈 Operational Velocities":
     st.title("📈 Logistical Metrics, Quality Leakage & Merchant Ranks")
-    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Logistical performance tracking and operational bottleneck analysis, highlighting capital drain from order failures, the impact of delivery delays on customer satisfaction, and optimal cuisine onboarding strategies.</p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Logistical performance tracking and operational bottleneck analysis, highlighting capital drain from order failures, the impact of delivery delays on customer satisfaction, and optimal cuisine onboarding strategies.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
         <b>💡 Executive Conclusion: Strategic Partner Anchoring</b><br>
-        While 'Ocean Express' drives the highest raw transaction volume, <b>'Desert Garden' (Business Bay)</b> is the true platform anchor. Despite lower overall volume, it achieves a vastly superior quality index (4.37 ⭐) and yields exceptionally high net profit. Operations should prioritize onboarding high-margin, high-rating storefronts over pure volume drivers.
+        While 'Ocean Express' drives the highest raw transaction volume, <b>'Desert Garden' (Business Bay)</b> is the true platform anchor. Despite lower overall volume, it achieves a vastly superior quality index (4.37 ⭐) and yields exceptionally high net profit (13,116 AED). Operations should prioritize onboarding high-margin, high-rating storefronts over pure volume drivers.
     </div>
     """, unsafe_allow_html=True)
     st.markdown("---")
     
     avg_del_time = df_filtered['delivery_time_min'].mean()
-    success_rate = (df_filtered['is_completed'].sum() / len(df_filtered)) * 100 if len(df_filtered) > 0 else 0
-    refunded_rate = (df_filtered['is_refunded'].sum() / len(df_filtered)) * 100 if len(df_filtered) > 0 else 0
-    cancelled_rate = (df_filtered['is_cancelled'].sum() / len(df_filtered)) * 100 if len(df_filtered) > 0 else 0
+    success_rate = (df_filtered['is_completed'].sum() / len(df_filtered)) * 100
+    refunded_rate = (df_filtered['is_refunded'].sum() / len(df_filtered)) * 100
+    cancelled_rate = (df_filtered['is_cancelled'].sum() / len(df_filtered)) * 100
     
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)
     with kpi1:
@@ -385,9 +474,8 @@ elif page == "📈 Operational Velocities":
         fig_leak = px.bar(leakage, x='zone', y=['lost_to_cancellations', 'lost_to_refunds'], barmode='group',
                           title="Capital Drain from Failed Operations", color_discrete_sequence=[SUFRA_CRIMSON, SAFFRON_GOLD],
                           labels={'value': 'Capital Lost (AED)', 'variable': 'Leakage Source', 'zone': 'Operating Zone'})
-        fig_leak.update_traces(texttemplate='%{y:,.0f}', textposition='auto')
-        if not leakage.empty:
-            fig_leak.update_yaxes(range=[0, leakage[['lost_to_cancellations', 'lost_to_refunds']].max().max() * 1.15])
+        fig_leak.update_traces(texttemplate='%{y:,.0f}', textposition='outside', cliponaxis=False)
+        fig_leak.update_yaxes(range=[0, leakage[['lost_to_cancellations', 'lost_to_refunds']].max().max() * 1.15])
         fig_leak = apply_board_theme(fig_leak)
         st.plotly_chart(fig_leak, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
@@ -395,20 +483,18 @@ elif page == "📈 Operational Velocities":
     with c_leak2:
         st.markdown("<div class='board-card'>", unsafe_allow_html=True)
         del_penalty = df_filtered[df_filtered['order_channel'] == 'delivery'].groupby('delivery_time_min')['rating'].mean().reset_index()
-        if not del_penalty.empty:
-            del_penalty['rating_smooth'] = del_penalty['rating'].rolling(window=5, min_periods=1).mean()
-            del_penalty['label'] = del_penalty.apply(lambda row: f"{row['rating_smooth']:.2f}" if int(row['delivery_time_min']) % 10 == 0 else "", axis=1)
-            
-            fig_del = px.line(del_penalty, x='delivery_time_min', y='rating_smooth', 
-                              title="The Delivery Penalty: How Delay Destroys Quality Index", 
-                              labels={'delivery_time_min': 'Delivery Time (Mins)', 'rating_smooth': 'Smoothed Avg Rating'},
-                              color_discrete_sequence=[MINT_GARNISH], markers=True, text='label')
-            fig_del.update_traces(textposition='top right', textfont=dict(color=SAFFRON_GOLD, size=13))
-            fig_del.add_hline(y=4.0, line_dash="dot", line_color=SUFRA_CRIMSON, annotation_text="Critical Danger Zone (< 4.0)")
-            fig_del = apply_board_theme(fig_del)
-            st.plotly_chart(fig_del, use_container_width=True)
-        else:
-            st.warning("No delivery channel data available for this selection.")
+        del_penalty['rating_smooth'] = del_penalty['rating'].rolling(window=5, min_periods=1).mean()
+        
+        del_penalty['label'] = del_penalty.apply(lambda row: f"{row['rating_smooth']:.2f}" if int(row['delivery_time_min']) % 10 == 0 else "", axis=1)
+        
+        fig_del = px.line(del_penalty, x='delivery_time_min', y='rating_smooth', 
+                          title="The Delivery Penalty: How Delay Destroys Quality Index", 
+                          labels={'delivery_time_min': 'Delivery Time (Mins)', 'rating_smooth': 'Smoothed Avg Rating'},
+                          color_discrete_sequence=[MINT_GARNISH], markers=True, text='label')
+        fig_del.update_traces(textposition='top right', textfont=dict(color=SAFFRON_GOLD, size=13))
+        fig_del.add_hline(y=4.0, line_dash="dot", line_color=SUFRA_CRIMSON, annotation_text="Critical Danger Zone (< 4.0)")
+        fig_del = apply_board_theme(fig_del)
+        st.plotly_chart(fig_del, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
         
     st.markdown("<div class='board-card'>", unsafe_allow_html=True)
@@ -418,17 +504,16 @@ elif page == "📈 Operational Velocities":
         avg_overall_rating=('rating', 'mean')
     ).reset_index().sort_values(by='total_orders', ascending=False)
     
-    if not rest_perf.empty:
-        top_10_merchants = rest_perf.head(10)
-        fig_top_merchants = px.bar(top_10_merchants, x='total_orders', y='restaurant_name', orientation='h',
-                                   title="Top 10 Merchants by Demand Volume vs Quality Index", color='avg_overall_rating',
-                                   color_continuous_scale=[SAFFRON_GOLD, MINT_GARNISH], text='total_orders',
-                                   labels={'total_orders': 'Total Completed Orders', 'restaurant_name': 'Merchant Name', 'avg_overall_rating': 'Avg Rating'})
-        fig_top_merchants.update_traces(textposition='auto', texttemplate='%{text:,}')
-        fig_top_merchants.update_layout(yaxis={'categoryorder':'total ascending'})
-        fig_top_merchants.update_xaxes(range=[0, top_10_merchants['total_orders'].max() * 1.15])
-        fig_top_merchants = apply_board_theme(fig_top_merchants)
-        st.plotly_chart(fig_top_merchants, use_container_width=True)
+    top_10_merchants = rest_perf.head(10)
+    fig_top_merchants = px.bar(top_10_merchants, x='total_orders', y='restaurant_name', orientation='h',
+                               title="Top 10 Merchants by Demand Volume vs Quality Index", color='avg_overall_rating',
+                               color_continuous_scale=[SAFFRON_GOLD, MINT_GARNISH], text='total_orders',
+                               labels={'total_orders': 'Total Completed Orders', 'restaurant_name': 'Merchant Name', 'avg_overall_rating': 'Avg Rating'})
+    fig_top_merchants.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{text:,}')
+    fig_top_merchants.update_layout(yaxis={'categoryorder':'total ascending'})
+    fig_top_merchants.update_xaxes(range=[0, top_10_merchants['total_orders'].max() * 1.15])
+    fig_top_merchants = apply_board_theme(fig_top_merchants)
+    st.plotly_chart(fig_top_merchants, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("---")
@@ -449,9 +534,8 @@ elif page == "📈 Operational Velocities":
             title="Cuisine Order Throughput Volumetrics vs Customer Sentiment",
             color_continuous_scale=[SUFRA_CRIMSON, MINT_GARNISH], text='volume'
         )
-        fig_cuis_deep.update_traces(textposition='auto', texttemplate='%{text:,}')
-        if not cuisine_metrics.empty:
-            fig_cuis_deep.update_yaxes(range=[0, cuisine_metrics['volume'].max() * 1.15])
+        fig_cuis_deep.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{text:,}')
+        fig_cuis_deep.update_yaxes(range=[0, cuisine_metrics['volume'].max() * 1.15])
         fig_cuis_deep = apply_board_theme(fig_cuis_deep)
         st.plotly_chart(fig_cuis_deep, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
@@ -483,13 +567,21 @@ elif page == "📈 Operational Velocities":
     fig_matrix = apply_board_theme(fig_matrix)
     st.plotly_chart(fig_matrix, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='board-card'>", unsafe_allow_html=True)
+    st.markdown("#### Complete Multi-Tiered Restaurant Ratings Matrix (By Cohort Type)")
+    rating_pivot = df_filtered.pivot_table(
+        values='rating', index=['zone', 'restaurant_name'], columns='customer_type', aggfunc='mean'
+    ).reset_index()
+    st.dataframe(rating_pivot.style.format({'new': '{:.2f} ⭐', 'repeat': '{:.2f} ⭐'}), use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
 # PAGE 4: NET FINANCIAL PERFORMANCE
 # ==========================================
 elif page == "💰 Net Financial Performance":
     st.title("💰 Capital Ledger, Seasonal Trends & Promo ROI")
-    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Comprehensive macroeconomic ledger tracking cumulative net profits, chronological demand shifts (including Ramadan seasonality), and the ROI efficiency of promotional subsidization.</p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Comprehensive macroeconomic ledger tracking cumulative net profits, chronological demand shifts (including Ramadan seasonality), and the ROI efficiency of promotional subsidization.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
@@ -502,7 +594,7 @@ elif page == "💰 Net Financial Performance":
     st.markdown("<div class='board-card'>", unsafe_allow_html=True)
     st.markdown("### 🌙 Ramadan vs. Non-Ramadan Impact Matrix")
     
-    ramadan_comp = df_filtered.groupby('is_ramadan').agg(
+    ramadan_comp = df_clean.groupby('is_ramadan').agg(
         orders=('order_id', 'count'),
         avg_basket=('basket_value', 'mean')
     ).reset_index()
@@ -512,18 +604,27 @@ elif page == "💰 Net Financial Performance":
                      title="Total Order Volume vs Average Basket Size Comparison",
                      text='orders', color_continuous_scale='Blues',
                      labels={'orders': 'Total Order Volume', 'avg_basket': 'Average Basket Size (AED)', 'Period': 'Chronological Period'})
-    fig_ram.update_traces(texttemplate='%{text:,} Orders', textposition='auto')
-    if not ramadan_comp.empty:
-        fig_ram.update_yaxes(range=[0, ramadan_comp['orders'].max() * 1.15])
+    fig_ram.update_traces(texttemplate='%{text:,} Orders', textposition='outside', cliponaxis=False)
+    fig_ram.update_yaxes(range=[0, ramadan_comp['orders'].max() * 1.15])
     fig_ram = apply_board_theme(fig_ram)
     st.plotly_chart(fig_ram, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("### 🎛️ Ramadan Context Filter Engine")
+    is_ram_filter = st.radio("Isolate Data Below to View Event Demand Shifts:", ["Full Year Data", "Ramadan Period Only", "Non-Ramadan Only"], horizontal=True)
+    
+    if is_ram_filter == "Ramadan Period Only":
+        view_df = df_filtered[df_filtered['is_ramadan'] == True]
+    elif is_ram_filter == "Non-Ramadan Only":
+        view_df = df_filtered[df_filtered['is_ramadan'] == False]
+    else:
+        view_df = df_filtered
         
     st.markdown("---")
     
     st.markdown("<div class='board-card'>", unsafe_allow_html=True)
     st.markdown("### Consolidated Operational Financial Log")
-    monthly_ledger = df_filtered.groupby(['month_num', 'month']).agg(
+    monthly_ledger = view_df.groupby(['month_num', 'month']).agg(
         expenditure=('discount_amount', 'sum'),
         revenue=('realised_revenue', 'sum'),
         profit=('net_profit', 'sum'),
@@ -542,29 +643,27 @@ elif page == "💰 Net Financial Performance":
     c5, c6 = st.columns(2)
     with c5:
         st.markdown("<div class='board-card'>", unsafe_allow_html=True)
-        hourly_peaks = df_filtered.groupby('hour').size().reset_index(name='orders')
+        hourly_peaks = view_df.groupby('hour').size().reset_index(name='orders')
         fig_hr = px.line(hourly_peaks, x='hour', y='orders', markers=True, 
                          line_shape='spline', color_discrete_sequence=[SUFRA_CRIMSON],
                          title="Diurnal Distribution: Peak Daily Delivery Demand Curves",
                          text='orders')
         fig_hr.update_layout(xaxis=dict(tickmode='linear', tick0=0, dtick=2))
         fig_hr.update_traces(textposition='top center', texttemplate='%{text:,}')
-        if not hourly_peaks.empty:
-            fig_hr.update_yaxes(range=[0, hourly_peaks['orders'].max() * 1.15])
+        fig_hr.update_yaxes(range=[0, hourly_peaks['orders'].max() * 1.15])
         fig_hr = apply_board_theme(fig_hr)
         st.plotly_chart(fig_hr, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
         
     with c6:
         st.markdown("<div class='board-card'>", unsafe_allow_html=True)
-        day_peaks = df_filtered.groupby(['day_of_week', 'customer_type']).size().reset_index(name='orders')
+        day_peaks = view_df.groupby(['day_of_week', 'customer_type']).size().reset_index(name='orders')
         fig_day = px.bar(day_peaks, x='day_of_week', y='orders', color='customer_type', 
                          barmode='group', text='orders',
                          color_discrete_map={'new': "#5D6D7E", 'repeat': SAFFRON_GOLD},
                          title="Weekly Transaction Patterns Segregated by Customer Type")
-        fig_day.update_traces(textposition='auto', texttemplate='%{text:,}')
-        if not day_peaks.empty:
-            fig_day.update_yaxes(range=[0, day_peaks['orders'].max() * 1.15])
+        fig_day.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{text:,}')
+        fig_day.update_yaxes(range=[0, day_peaks['orders'].max() * 1.15])
         fig_day = apply_board_theme(fig_day)
         st.plotly_chart(fig_day, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
@@ -572,26 +671,23 @@ elif page == "💰 Net Financial Performance":
     st.markdown("---")
     st.markdown("<div class='board-card'>", unsafe_allow_html=True)
     st.markdown("### 🎟️ Promo Code Efficiency: Subsidization Cost vs User Acquisition")
-    promo_roi = df_filtered[df_filtered['promo_code'] != 'no promo'].groupby('promo_code').agg(
+    promo_roi = view_df[view_df['promo_code'] != 'no promo'].groupby('promo_code').agg(
         new_customers=('customer_type', lambda x: (x == 'new').sum()),
         subsidy_cost=('discount_amount', 'sum')
     ).reset_index()
-    if not promo_roi.empty:
-        promo_roi['cost_per_acquisition'] = promo_roi['subsidy_cost'] / promo_roi['new_customers'].replace(0, 1)
-        fig_roi = px.scatter(promo_roi, x='subsidy_cost', y='new_customers', text='promo_code', size='cost_per_acquisition',
-                             title="Voucher Subsidization Bleed vs New Market Penetration (Larger Bubble = Worse Efficiency)", 
-                             color='cost_per_acquisition', color_continuous_scale="Reds", 
-                             labels={'subsidy_cost': 'Total Discount Subsidized (AED)', 'new_customers': 'New Users Acquired'})
-        fig_roi.update_traces(textposition='top center')
-        fig_roi = apply_board_theme(fig_roi)
-        st.plotly_chart(fig_roi, use_container_width=True)
-    else:
-        st.warning("No promo codes were used under these specific filter conditions.")
+    promo_roi['cost_per_acquisition'] = promo_roi['subsidy_cost'] / promo_roi['new_customers'].replace(0, 1)
+    fig_roi = px.scatter(promo_roi, x='subsidy_cost', y='new_customers', text='promo_code', size='cost_per_acquisition',
+                         title="Voucher Subsidization Bleed vs New Market Penetration (Larger Bubble = Worse Efficiency)", 
+                         color='cost_per_acquisition', color_continuous_scale="Reds", 
+                         labels={'subsidy_cost': 'Total Discount Subsidized (AED)', 'new_customers': 'New Users Acquired'})
+    fig_roi.update_traces(textposition='top center')
+    fig_roi = apply_board_theme(fig_roi)
+    st.plotly_chart(fig_roi, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("<div class='board-card'>", unsafe_allow_html=True)
     st.markdown("### Region-Wise Voucher Code ROI Analysis")
-    promo_perf = df_filtered[df_filtered['promo_code'] != 'no promo'].groupby(['zone', 'promo_code']).agg(
+    promo_perf = view_df[view_df['promo_code'] != 'no promo'].groupby(['zone', 'promo_code']).agg(
         usages=('order_id', 'count'),
         total_discount_borne=('discount_amount', 'sum'),
         acquired_new_users=('customer_type', lambda x: (x == 'new').sum())
@@ -603,4 +699,18 @@ elif page == "💰 Net Financial Performance":
         'acquired_new_users': '{:,}'
     }), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("<div class='board-card'>", unsafe_allow_html=True)
+    st.markdown("### 🎟️ Chronological Voucher Lifecycle Pipeline Tracking Matrix")
+    promo_time_matrix = view_df[view_df['promo_code'] != 'no promo'].groupby(['zone', 'month_num', 'month', 'promo_code']).agg(
+        volume_utilized=('order_id', 'count'),
+        subsidy_costs=('discount_amount', 'sum'),
+        net_profit_margin=('net_profit', 'sum')
+    ).reset_index().sort_values(by=['zone', 'month_num', 'volume_utilized'], ascending=[True, True, False]).drop(columns=['month_num'])
     
+    st.dataframe(promo_time_matrix.style.format({
+        'volume_utilized': '{:,}',
+        'subsidy_costs': '{:,.2f} AED',
+        'net_profit_margin': '{:,.2f} AED'
+    }), use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
