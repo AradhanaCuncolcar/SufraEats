@@ -234,7 +234,7 @@ if page == "📌 Expansion Strategy Mandate":
 # ==========================================
 elif page == "👥 Target Customer Insights":
     st.title("👥 Cohort Demographics, Preferred Channels & Interfaces")
-    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Behavioral analysis of target customer cohorts, evaluating payment framework adoption, preferred ordering channels, and digital ecosystem access points to inform product and marketing development.</p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Behavioral analysis of target customer cohorts, evaluating payment framework adoption, preferred ordering channels, and digital ecosystem access points to inform product and marketing development.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
@@ -310,7 +310,7 @@ elif page == "👥 Target Customer Insights":
 # ==========================================
 elif page == "📈 Operational Velocities":
     st.title("📈 Logistical Metrics, Quality Leakage & Merchant Ranks")
-    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Logistical performance tracking and operational bottleneck analysis, highlighting capital drain from order failures, the impact of delivery delays on customer satisfaction, and optimal cuisine onboarding strategies.</p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Logistical performance tracking and operational bottleneck analysis, highlighting capital drain from order failures, the impact of delivery delays on customer satisfaction, and optimal cuisine onboarding strategies.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
@@ -451,7 +451,7 @@ elif page == "📈 Operational Velocities":
 # ==========================================
 elif page == "💰 Net Financial Performance":
     st.title("💰 Capital Ledger, Seasonal Trends & Promo ROI")
-    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Comprehensive macroeconomic ledger tracking cumulative net profits, chronological demand shifts (including Ramadan seasonality), and the ROI efficiency of promotional subsidization.</p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Comprehensive macroeconomic ledger tracking cumulative net profits, chronological demand shifts (including Ramadan seasonality), and the ROI efficiency of promotional subsidization.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
