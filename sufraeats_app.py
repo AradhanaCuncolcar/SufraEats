@@ -120,7 +120,6 @@ def apply_board_theme(fig):
         title=dict(font=dict(size=16, color="#FFFFFF", weight='bold')),
         margin=dict(t=50, b=40, l=40, r=40)
     )
-    # Ensure text labels outside bars are not cut off
     fig.update_yaxes(automargin=True)
     fig.update_xaxes(automargin=True)
     return fig
@@ -154,6 +153,7 @@ df_filtered = df_clean[
 # ==========================================
 if page == "📌 Expansion Strategy Mandate":
     st.title("🎯 Strategic Regional Expansion Recommendation")
+    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Executive overview of geographic financial health, determining the optimal region for capital expansion based on actual realized profit rather than misleading top-line gross volumes.</p>", unsafe_allow_html=True)
     st.markdown("---")
     
     zone_perf = df_filtered.groupby('zone').agg(
@@ -190,13 +190,16 @@ if page == "📌 Expansion Strategy Mandate":
         </div>
         """, unsafe_allow_html=True)
 
+    # Dynamic scaling for Y-axis to correctly display negative values (losses)
+    min_profit_bound = min(0, zone_perf['total_profit'].min() * 1.2)
+    
     st.markdown("<div class='board-card'>", unsafe_allow_html=True)
     st.markdown("### 🔍 Strategic Context: The Gross vs. Net Profit Illusion")
     fig_illusion = go.Figure()
     fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['gross_order_value'], name='Gross Order Value (Mirage)', marker_color='#3A4766', text=zone_perf['gross_order_value'], texttemplate='%{text:,.0f} AED', textposition='outside'))
     fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['total_profit'], name='True Net Profit Retained', marker_color=MINT_GARNISH, text=zone_perf['total_profit'], texttemplate='%{text:,.0f} AED', textposition='outside'))
     fig_illusion.update_layout(barmode='overlay', title="Gross Transaction Volume vs. Realized Net Profit by Zone", yaxis_title="Monetary Value (AED)", margin=dict(t=50, b=40, l=40, r=40))
-    fig_illusion.update_yaxes(range=[0, zone_perf['gross_order_value'].max() * 1.15]) # Add headroom for labels
+    fig_illusion.update_yaxes(range=[min_profit_bound, zone_perf['gross_order_value'].max() * 1.15]) 
     fig_illusion = apply_board_theme(fig_illusion)
     st.plotly_chart(fig_illusion, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -207,7 +210,7 @@ if page == "📌 Expansion Strategy Mandate":
                            title="Net Profit Contribution Margin by Territory vs Regional Customer Quality Index",
                            color_continuous_scale=[SAFFRON_GOLD, SUFRA_CRIMSON], text_auto=',.0f')
     fig_zone_prof.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{y:,.0f} AED')
-    fig_zone_prof.update_yaxes(range=[0, zone_perf['total_profit'].max() * 1.15]) # Add headroom for labels
+    fig_zone_prof.update_yaxes(range=[min_profit_bound, zone_perf['total_profit'].max() * 1.15])
     fig_zone_prof = apply_board_theme(fig_zone_prof)
     st.plotly_chart(fig_zone_prof, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -217,6 +220,7 @@ if page == "📌 Expansion Strategy Mandate":
 # ==========================================
 elif page == "👥 Target Customer Insights":
     st.title("👥 Cohort Demographics, Preferred Channels & Interfaces")
+    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Behavioral analysis of target customer cohorts, evaluating payment framework adoption, preferred ordering channels, and digital ecosystem access points to inform product and marketing development.</p>", unsafe_allow_html=True)
     st.markdown("---")
     
     c1, r1 = st.columns(2)
@@ -277,6 +281,7 @@ elif page == "👥 Target Customer Insights":
         fig4.update_layout(title="Ecosystem Access Device Point Proportions")
         fig4 = apply_board_theme(fig4)
         st.plotly_chart(fig4, use_container_width=True)
+        st.sidebar.markdown("---")
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
@@ -284,6 +289,7 @@ elif page == "👥 Target Customer Insights":
 # ==========================================
 elif page == "📈 Operational Velocities":
     st.title("📈 Logistical Metrics, Quality Leakage & Merchant Ranks")
+    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Logistical performance tracking and operational bottleneck analysis, highlighting capital drain from order failures, the impact of delivery delays on customer satisfaction, and optimal cuisine onboarding strategies.</p>", unsafe_allow_html=True)
     st.markdown("---")
     
     avg_del_time = df_filtered['delivery_time_min'].mean()
@@ -310,7 +316,6 @@ elif page == "📈 Operational Velocities":
         fig_leak = px.bar(leakage, x='zone', y=['lost_to_cancellations', 'lost_to_refunds'], barmode='group',
                           title="Capital Drain from Failed Operations", color_discrete_sequence=[SUFRA_CRIMSON, SAFFRON_GOLD],
                           labels={'value': 'Capital Lost (AED)', 'variable': 'Leakage Source', 'zone': 'Operating Zone'})
-        # Setting values to appear cleanly on top of each grouped bar
         fig_leak.update_traces(texttemplate='%{y:,.0f}', textposition='outside', cliponaxis=False)
         fig_leak.update_yaxes(range=[0, leakage[['lost_to_cancellations', 'lost_to_refunds']].max().max() * 1.15])
         fig_leak = apply_board_theme(fig_leak)
@@ -322,7 +327,6 @@ elif page == "📈 Operational Velocities":
         del_penalty = df_filtered[df_filtered['order_channel'] == 'delivery'].groupby('delivery_time_min')['rating'].mean().reset_index()
         del_penalty['rating_smooth'] = del_penalty['rating'].rolling(window=5, min_periods=1).mean()
         
-        # Smart labeling: Only label points exactly on the 10-minute marks to prevent clutter
         del_penalty['label'] = del_penalty.apply(lambda row: f"{row['rating_smooth']:.2f}" if int(row['delivery_time_min']) % 10 == 0 else "", axis=1)
         
         fig_del = px.line(del_penalty, x='delivery_time_min', y='rating_smooth', 
@@ -342,7 +346,6 @@ elif page == "📈 Operational Velocities":
         avg_overall_rating=('rating', 'mean')
     ).reset_index().sort_values(by='total_orders', ascending=False)
     
-    # Newly Added: Visual Representation for Market Demand Preference
     top_10_merchants = rest_perf.head(10)
     fig_top_merchants = px.bar(top_10_merchants, x='total_orders', y='restaurant_name', orientation='h',
                                title="Top 10 Merchants by Demand Volume", color='avg_overall_rating',
@@ -420,9 +423,9 @@ elif page == "📈 Operational Velocities":
 # ==========================================
 elif page == "💰 Net Financial Performance":
     st.title("💰 Capital Ledger, Seasonal Trends & Promo ROI")
+    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Comprehensive macroeconomic ledger tracking cumulative net profits, chronological demand shifts (including Ramadan seasonality), and the ROI efficiency of promotional subsidization.</p>", unsafe_allow_html=True)
     st.markdown("---")
     
-    # Newly Added: Ramadan Visual Chart to display context BEFORE filtering
     st.markdown("<div class='board-card'>", unsafe_allow_html=True)
     st.markdown("### 🌙 Ramadan vs. Non-Ramadan Impact Matrix")
     
