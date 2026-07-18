@@ -132,9 +132,10 @@ def apply_board_theme(fig):
     return fig
 
 # ==========================================
-# SIDEBAR NAVIGATION & CONTROLS
+# SIDEBAR NAVIGATION & MASTER FILTERS
 # ==========================================
 st.sidebar.markdown(f"<br><h2 style='text-align: center; color: {SUFRA_CRIMSON}; font-size: 26px; letter-spacing: -0.5px;'>🍔 SufraEats</h2><p style='text-align: center; font-size: 11px; color: #FFFFFF; text-transform: uppercase; margin-top: -10px;'>Executive Intelligence Deck</p>", unsafe_allow_html=True)
+
 page = st.sidebar.radio("Go to Slide:", [
     "📌 Expansion Strategy Mandate", 
     "👥 Target Customer Insights", 
@@ -143,17 +144,65 @@ page = st.sidebar.radio("Go to Slide:", [
 ])
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("<p style='font-size: 11px; font-weight: bold; text-transform: uppercase; color: #FFFFFF; letter-spacing: 0.5px;'>Interactive Controls</p>", unsafe_allow_html=True)
-selected_zones = st.sidebar.multiselect("Zone Focus Area:", options=df_clean['zone'].unique().tolist(), default=df_clean['zone'].unique().tolist())
-selected_cuisines = st.sidebar.multiselect("Cuisine Categories:", options=df_clean['cuisine'].unique().tolist(), default=df_clean['cuisine'].unique().tolist())
-status_options = df_clean['order_status'].unique().tolist()
-selected_status = st.sidebar.multiselect("Order Status:", options=status_options, default=status_options)
+st.sidebar.markdown("<p style='font-size: 12px; font-weight: bold; text-transform: uppercase; color: #FFFFFF; letter-spacing: 0.5px;'>🎛️ Master Control Filters</p>", unsafe_allow_html=True)
 
-df_filtered = df_clean[
-    (df_clean['zone'].isin(selected_zones)) & 
+# 1. TEMPORAL & SEASONAL FILTERS
+with st.sidebar.expander("📅 Temporal & Seasonal", expanded=True):
+    min_date, max_date = df_clean['date'].min(), df_clean['date'].max()
+    date_range = st.date_input("Date Range:", [min_date, max_date], min_value=min_date, max_value=max_date)
+    ramadan_filter = st.radio("Seasonality:", ["All Periods", "Ramadan Only", "Non-Ramadan Only"])
+
+# 2. GEOGRAPHIC & PRODUCT FILTERS
+with st.sidebar.expander("📍 Geography & Catalog", expanded=True):
+    selected_zones = st.multiselect("Operating Zones:", options=df_clean['zone'].unique().tolist(), default=df_clean['zone'].unique().tolist())
+    selected_cuisines = st.multiselect("Cuisine Categories:", options=df_clean['cuisine'].unique().tolist(), default=df_clean['cuisine'].unique().tolist())
+
+# 3. DEMOGRAPHIC & CHANNEL FILTERS
+with st.sidebar.expander("👥 Demographics & Tech", expanded=False):
+    selected_cust = st.multiselect("Customer Cohort:", options=df_clean['customer_type'].unique().tolist(), default=df_clean['customer_type'].unique().tolist())
+    selected_channels = st.multiselect("Order Channel:", options=df_clean['order_channel'].unique().tolist(), default=df_clean['order_channel'].unique().tolist())
+    selected_devices = st.multiselect("Device Platform:", options=df_clean['device_platform'].unique().tolist(), default=df_clean['device_platform'].unique().tolist())
+
+# 4. OPERATIONAL & FINANCIAL FILTERS
+with st.sidebar.expander("💳 Operations & Ledger", expanded=False):
+    selected_status = st.multiselect("Order Status:", options=df_clean['order_status'].unique().tolist(), default=df_clean['order_status'].unique().tolist())
+    selected_payments = st.multiselect("Payment Method:", options=df_clean['payment_method'].unique().tolist(), default=df_clean['payment_method'].unique().tolist())
+
+# ---------------------------------------------------------
+# APPLYING THE MASTER FILTERS (Engine Pipeline)
+# ---------------------------------------------------------
+# Handle dynamic date ranges safely to prevent crashes
+if len(date_range) == 2:
+    start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+else:
+    start_date, end_date = min_date, max_date
+
+# Construct the core logical mask
+mask = (
+    (df_clean['date'] >= start_date) & 
+    (df_clean['date'] <= end_date) &
+    (df_clean['zone'].isin(selected_zones)) &
     (df_clean['cuisine'].isin(selected_cuisines)) &
-    (df_clean['order_status'].isin(selected_status))
-]
+    (df_clean['customer_type'].isin(selected_cust)) &
+    (df_clean['order_channel'].isin(selected_channels)) &
+    (df_clean['device_platform'].isin(selected_devices)) &
+    (df_clean['order_status'].isin(selected_status)) &
+    (df_clean['payment_method'].isin(selected_payments))
+)
+
+# Apply standalone Boolean overrides
+if ramadan_filter == "Ramadan Only":
+    mask = mask & (df_clean['is_ramadan'] == True)
+elif ramadan_filter == "Non-Ramadan Only":
+    mask = mask & (df_clean['is_ramadan'] == False)
+
+# Finalize the filtered dataframe engine
+df_filtered = df_clean[mask]
+
+# Stop execution elegantly if filters result in zero data
+if df_filtered.empty:
+    st.warning("⚠️ No data available for this specific combination of filters. Please adjust your parameters.")
+    st.stop()
 
 # ==========================================
 # PAGE 1: EXPANSION STRATEGY MANDATE
