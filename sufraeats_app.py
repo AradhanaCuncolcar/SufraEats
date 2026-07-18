@@ -339,33 +339,7 @@ if page == "📌 Expansion Strategy Mandate":
             </div>
             """, unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        min_profit_bound = min(0, zone_perf['total_profit'].min() * 1.2)
-        
-        # --- MIDDLE SECTION: CHARTS ---
-        st.markdown("<div class='board-card'>", unsafe_allow_html=True)
-        st.markdown("### 🔍 Strategic Context: The Gross vs. Net Profit Illusion")
-        fig_illusion = go.Figure()
-        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['gross_order_value'], name='Gross Order Value (Mirage)', marker_color='#3A4766', text=zone_perf['gross_order_value'], texttemplate='%{text:,.0f} AED', textposition='outside'))
-        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['total_profit'], name='True Net Profit Retained', marker_color=MINT_GARNISH, text=zone_perf['total_profit'], texttemplate='%{text:,.0f} AED', textposition='outside'))
-        fig_illusion.update_layout(barmode='overlay', title="Gross Transaction Volume vs. Realized Net Profit by Zone", yaxis_title="Monetary Value (AED)", margin=dict(t=50, b=40, l=40, r=40))
-        fig_illusion.update_yaxes(range=[min_profit_bound, zone_perf['gross_order_value'].max() * 1.15]) 
-        fig_illusion = apply_board_theme(fig_illusion)
-        st.plotly_chart(fig_illusion, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown("<div class='board-card'>", unsafe_allow_html=True)
-        fig_zone_prof = px.bar(zone_perf, x='zone', y='total_profit', color='avg_rating',
-                               labels={'total_profit': 'Net Profit Retained (AED)', 'zone': 'Dubai Operating Zone', 'avg_rating': 'Customer Score'},
-                               title="Net Profit Contribution Margin by Territory vs Regional Customer Quality Index",
-                               color_continuous_scale=[SAFFRON_GOLD, SUFRA_CRIMSON], text_auto=',.0f')
-        fig_zone_prof.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{y:,.0f} AED')
-        fig_zone_prof.update_yaxes(range=[min_profit_bound, zone_perf['total_profit'].max() * 1.15])
-        fig_zone_prof = apply_board_theme(fig_zone_prof)
-        st.plotly_chart(fig_zone_prof, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # --- BOTTOM SECTION: THREE PILLARS ---
+        # --- MIDDLE SECTION: THREE PILLARS (MOVED HERE) ---
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(f"""
             <div style="border-left: 5px solid {SUFRA_CRIMSON}; padding-left: 15px; margin-bottom: 20px;">
@@ -407,6 +381,33 @@ if page == "📌 Expansion Strategy Mandate":
                 <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Onboard healthy, premium office lunch brands (salads, bowls, sushi) to capture daytime wellness consumer spends.</p>
             </div>
             """, unsafe_allow_html=True)
+
+        # --- BOTTOM SECTION: CHARTS ---
+        st.markdown("<br>", unsafe_allow_html=True)
+        min_profit_bound = min(0, zone_perf['total_profit'].min() * 1.2)
+        
+        st.markdown("<div class='board-card'>", unsafe_allow_html=True)
+        st.markdown("### 🔍 Strategic Context: The Gross vs. Net Profit Illusion")
+        fig_illusion = go.Figure()
+        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['gross_order_value'], name='Gross Order Value (Mirage)', marker_color='#3A4766', text=zone_perf['gross_order_value'], texttemplate='%{text:,.0f} AED', textposition='outside'))
+        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['total_profit'], name='True Net Profit Retained', marker_color=MINT_GARNISH, text=zone_perf['total_profit'], texttemplate='%{text:,.0f} AED', textposition='outside'))
+        fig_illusion.update_layout(barmode='overlay', title="Gross Transaction Volume vs. Realized Net Profit by Zone", yaxis_title="Monetary Value (AED)", margin=dict(t=50, b=40, l=40, r=40))
+        fig_illusion.update_yaxes(range=[min_profit_bound, zone_perf['gross_order_value'].max() * 1.15]) 
+        fig_illusion = apply_board_theme(fig_illusion)
+        st.plotly_chart(fig_illusion, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("<div class='board-card'>", unsafe_allow_html=True)
+        fig_zone_prof = px.bar(zone_perf, x='zone', y='total_profit', color='avg_rating',
+                               labels={'total_profit': 'Net Profit Retained (AED)', 'zone': 'Dubai Operating Zone', 'avg_rating': 'Customer Score'},
+                               title="Net Profit Contribution Margin by Territory vs Regional Customer Quality Index",
+                               color_continuous_scale=[SAFFRON_GOLD, SUFRA_CRIMSON], text_auto=',.0f')
+        fig_zone_prof.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{y:,.0f} AED')
+        fig_zone_prof.update_yaxes(range=[min_profit_bound, zone_perf['total_profit'].max() * 1.15])
+        fig_zone_prof = apply_board_theme(fig_zone_prof)
+        st.plotly_chart(fig_zone_prof, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
     else:
         st.warning("⚠️ No data available for the selected filters.")
 
