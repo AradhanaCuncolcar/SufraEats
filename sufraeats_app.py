@@ -44,6 +44,13 @@ st.markdown(f"""
         margin-bottom: 20px;
     }}
     .board-card-accent {{ border-top: 5px solid {SUFRA_CRIMSON}; }}
+    .insight-box {{
+        background-color: rgba(34, 197, 94, 0.1);
+        border-left: 4px solid {MINT_GARNISH};
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }}
     [data-testid="stMetricValue"] {{ font-size: 34px !important; font-weight: 800 !important; color: #FFFFFF !important; }}
     [data-testid="stMetricLabel"] {{ font-size: 13px !important; text-transform: uppercase; letter-spacing: 0.8px; color: #FFFFFF !important; font-weight: 600; }}
 </style>
@@ -154,6 +161,13 @@ df_filtered = df_clean[
 if page == "📌 Expansion Strategy Mandate":
     st.title("🎯 Strategic Regional Expansion Recommendation")
     st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Executive overview of geographic financial health, determining the optimal region for capital expansion based on actual realized profit rather than misleading top-line gross volumes.</p>", unsafe_allow_html=True)
+    
+    st.markdown(f"""
+    <div class="insight-box">
+        <b>💡 Executive Conclusion: The Gross vs. Net Reality Check</b><br>
+        Downtown generates the highest gross revenue (over 1M AED) but actively loses money (-63,267 AED) due to severe baseline discount leakage and operational penalties. Business Bay is the definitive expansion target, securely converting strong volume into a platform-leading 162,221 AED in clean net profit.
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown("---")
     
     zone_perf = df_filtered.groupby('zone').agg(
@@ -164,56 +178,56 @@ if page == "📌 Expansion Strategy Mandate":
         del_time=('delivery_time_min', 'mean')
     ).reset_index()
     
-    recommended_zone = zone_perf.sort_values(by='total_profit', ascending=False).iloc[0]['zone']
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(f"""
-        <div class="board-card board-card-accent">
-            <h3 style='margin-top: 0; color: {SUFRA_CRIMSON} !important;'>🏆 DATA MANDATE SELECTOR</h3>
-            <p style='color: #FFFFFF;'>Optimizing for bottom-line margin retention and real platform profit parameters over 5 months, our analytics engine identifies the ideal investment hub location as:</p>
-            <h2 style='color: {SUFRA_CRIMSON}; margin: 10px 0; font-size: 38px; letter-spacing: -1px;'>{recommended_zone.upper()}</h2>
-            <hr style='border-color: #3A4766; margin: 15px 0;'>
-            <table style='width: 100%; font-size: 14px; color: #FFFFFF;'>
-                <tr><td><b>Net Realized Profit Yield:</b></td><td style='text-align: right; color: #FFFFFF; font-weight: bold;'>{zone_perf[zone_perf['zone']==recommended_zone]['total_profit'].values[0]:,.0f} AED</td></tr>
-                <tr><td><b>Quality Baseline Index:</b></td><td style='text-align: right; color: {SAFFRON_GOLD}; font-weight: bold;'>{zone_perf[zone_perf['zone']==recommended_zone]['avg_rating'].values[0]:.2f} ⭐</td></tr>
-                <tr><td><b>Logistical Velocity Average:</b></td><td style='text-align: right; color: {MINT_GARNISH}; font-weight: bold;'>{zone_perf[zone_perf['zone']==recommended_zone]['del_time'].values[0]:.1f} Mins</td></tr>
-            </table>
-        </div>
-        """, unsafe_allow_html=True)
-    with col2:
-        st.markdown(f"""
-        <div class="board-card" style="height: 100%; background-color: #111827; border-color: #374151;">
-            <h4 style='color: #FFFFFF !important; margin-top: 0;'>📊 Brand Health Optimization Logic</h4>
-            <p style='font-size: 14px; line-height: 1.6; color: #FFFFFF;'>Top-line order numbers or simple gross volume figures create dangerous illusions in high-frequency delivery markets. A specific district might show massive transaction counts while silently running at a deficit due to persistent discount promo loops, operational cancellation liabilities, and customer support refunds. 
-            SufraEats chooses <b>{recommended_zone.upper()}</b> because it successfully translates market demand into true corporate net value.</p>
-        </div>
-        """, unsafe_allow_html=True)
+    if not zone_perf.empty:
+        recommended_zone = zone_perf.sort_values(by='total_profit', ascending=False).iloc[0]['zone']
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f"""
+            <div class="board-card board-card-accent">
+                <h3 style='margin-top: 0; color: {SUFRA_CRIMSON} !important;'>🏆 DATA MANDATE SELECTOR</h3>
+                <p style='color: #FFFFFF;'>Optimizing for bottom-line margin retention and real platform profit parameters over 5 months, our analytics engine identifies the ideal investment hub location as:</p>
+                <h2 style='color: {SUFRA_CRIMSON}; margin: 10px 0; font-size: 38px; letter-spacing: -1px;'>{recommended_zone.upper()}</h2>
+                <hr style='border-color: #3A4766; margin: 15px 0;'>
+                <table style='width: 100%; font-size: 14px; color: #FFFFFF;'>
+                    <tr><td><b>Net Realized Profit Yield:</b></td><td style='text-align: right; color: #FFFFFF; font-weight: bold;'>{zone_perf[zone_perf['zone']==recommended_zone]['total_profit'].values[0]:,.0f} AED</td></tr>
+                    <tr><td><b>Quality Baseline Index:</b></td><td style='text-align: right; color: {SAFFRON_GOLD}; font-weight: bold;'>{zone_perf[zone_perf['zone']==recommended_zone]['avg_rating'].values[0]:.2f} ⭐</td></tr>
+                    <tr><td><b>Logistical Velocity Average:</b></td><td style='text-align: right; color: {MINT_GARNISH}; font-weight: bold;'>{zone_perf[zone_perf['zone']==recommended_zone]['del_time'].values[0]:.1f} Mins</td></tr>
+                </table>
+            </div>
+            """, unsafe_allow_html=True)
+        with col2:
+            st.markdown(f"""
+            <div class="board-card" style="height: 100%; background-color: #111827; border-color: #374151;">
+                <h4 style='color: #FFFFFF !important; margin-top: 0;'>📊 Brand Health Optimization Logic</h4>
+                <p style='font-size: 14px; line-height: 1.6; color: #FFFFFF;'>Top-line order numbers or simple gross volume figures create dangerous illusions in high-frequency delivery markets. A specific district might show massive transaction counts while silently running at a deficit due to persistent discount promo loops, operational cancellation liabilities, and customer support refunds. 
+                SufraEats chooses <b>{recommended_zone.upper()}</b> because it successfully translates market demand into true corporate net value.</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-    # Dynamic scaling for Y-axis to correctly display negative values (losses)
-    min_profit_bound = min(0, zone_perf['total_profit'].min() * 1.2)
-    
-    st.markdown("<div class='board-card'>", unsafe_allow_html=True)
-    st.markdown("### 🔍 Strategic Context: The Gross vs. Net Profit Illusion")
-    fig_illusion = go.Figure()
-    fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['gross_order_value'], name='Gross Order Value (Mirage)', marker_color='#3A4766', text=zone_perf['gross_order_value'], texttemplate='%{text:,.0f} AED', textposition='outside'))
-    fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['total_profit'], name='True Net Profit Retained', marker_color=MINT_GARNISH, text=zone_perf['total_profit'], texttemplate='%{text:,.0f} AED', textposition='outside'))
-    fig_illusion.update_layout(barmode='overlay', title="Gross Transaction Volume vs. Realized Net Profit by Zone", yaxis_title="Monetary Value (AED)", margin=dict(t=50, b=40, l=40, r=40))
-    fig_illusion.update_yaxes(range=[min_profit_bound, zone_perf['gross_order_value'].max() * 1.15]) 
-    fig_illusion = apply_board_theme(fig_illusion)
-    st.plotly_chart(fig_illusion, use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        min_profit_bound = min(0, zone_perf['total_profit'].min() * 1.2)
+        
+        st.markdown("<div class='board-card'>", unsafe_allow_html=True)
+        st.markdown("### 🔍 Strategic Context: The Gross vs. Net Profit Illusion")
+        fig_illusion = go.Figure()
+        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['gross_order_value'], name='Gross Order Value (Mirage)', marker_color='#3A4766', text=zone_perf['gross_order_value'], texttemplate='%{text:,.0f} AED', textposition='outside'))
+        fig_illusion.add_trace(go.Bar(x=zone_perf['zone'], y=zone_perf['total_profit'], name='True Net Profit Retained', marker_color=MINT_GARNISH, text=zone_perf['total_profit'], texttemplate='%{text:,.0f} AED', textposition='outside'))
+        fig_illusion.update_layout(barmode='overlay', title="Gross Transaction Volume vs. Realized Net Profit by Zone", yaxis_title="Monetary Value (AED)", margin=dict(t=50, b=40, l=40, r=40))
+        fig_illusion.update_yaxes(range=[min_profit_bound, zone_perf['gross_order_value'].max() * 1.15]) 
+        fig_illusion = apply_board_theme(fig_illusion)
+        st.plotly_chart(fig_illusion, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='board-card'>", unsafe_allow_html=True)
-    fig_zone_prof = px.bar(zone_perf, x='zone', y='total_profit', color='avg_rating',
-                           labels={'total_profit': 'Net Profit Retained (AED)', 'zone': 'Dubai Operating Zone', 'avg_rating': 'Customer Score'},
-                           title="Net Profit Contribution Margin by Territory vs Regional Customer Quality Index",
-                           color_continuous_scale=[SAFFRON_GOLD, SUFRA_CRIMSON], text_auto=',.0f')
-    fig_zone_prof.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{y:,.0f} AED')
-    fig_zone_prof.update_yaxes(range=[min_profit_bound, zone_perf['total_profit'].max() * 1.15])
-    fig_zone_prof = apply_board_theme(fig_zone_prof)
-    st.plotly_chart(fig_zone_prof, use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div class='board-card'>", unsafe_allow_html=True)
+        fig_zone_prof = px.bar(zone_perf, x='zone', y='total_profit', color='avg_rating',
+                               labels={'total_profit': 'Net Profit Retained (AED)', 'zone': 'Dubai Operating Zone', 'avg_rating': 'Customer Score'},
+                               title="Net Profit Contribution Margin by Territory vs Regional Customer Quality Index",
+                               color_continuous_scale=[SAFFRON_GOLD, SUFRA_CRIMSON], text_auto=',.0f')
+        fig_zone_prof.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{y:,.0f} AED')
+        fig_zone_prof.update_yaxes(range=[min_profit_bound, zone_perf['total_profit'].max() * 1.15])
+        fig_zone_prof = apply_board_theme(fig_zone_prof)
+        st.plotly_chart(fig_zone_prof, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
 # PAGE 2: TARGET CUSTOMER INSIGHTS
@@ -221,6 +235,13 @@ if page == "📌 Expansion Strategy Mandate":
 elif page == "👥 Target Customer Insights":
     st.title("👥 Cohort Demographics, Preferred Channels & Interfaces")
     st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Behavioral analysis of target customer cohorts, evaluating payment framework adoption, preferred ordering channels, and digital ecosystem access points to inform product and marketing development.</p>", unsafe_allow_html=True)
+    
+    st.markdown(f"""
+    <div class="insight-box">
+        <b>💡 Executive Conclusion: Cohort & Channel Mechanics</b><br>
+        Despite perfectly balanced payment and device preferences, <b>Repeat customers are the structural backbone of SufraEats</b>, generating nearly double the transaction volume (29,779 orders) compared to New users. Across both segments, home delivery heavily dominates over dine-in and pickup channels.
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown("---")
     
     c1, r1 = st.columns(2)
@@ -290,6 +311,13 @@ elif page == "👥 Target Customer Insights":
 elif page == "📈 Operational Velocities":
     st.title("📈 Logistical Metrics, Quality Leakage & Merchant Ranks")
     st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Logistical performance tracking and operational bottleneck analysis, highlighting capital drain from order failures, the impact of delivery delays on customer satisfaction, and optimal cuisine onboarding strategies.</p>", unsafe_allow_html=True)
+    
+    st.markdown(f"""
+    <div class="insight-box">
+        <b>💡 Executive Conclusion: Strategic Partner Anchoring</b><br>
+        While 'Ocean Express' drives the highest raw transaction volume, <b>'Desert Garden' (Business Bay)</b> is the true platform anchor. Despite lower overall volume, it achieves a vastly superior quality index (4.37 ⭐) and yields exceptionally high net profit (13,116 AED). Operations should prioritize onboarding high-margin, high-rating storefronts over pure volume drivers.
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown("---")
     
     avg_del_time = df_filtered['delivery_time_min'].mean()
@@ -348,7 +376,7 @@ elif page == "📈 Operational Velocities":
     
     top_10_merchants = rest_perf.head(10)
     fig_top_merchants = px.bar(top_10_merchants, x='total_orders', y='restaurant_name', orientation='h',
-                               title="Top 10 Merchants by Demand Volume", color='avg_overall_rating',
+                               title="Top 10 Merchants by Demand Volume vs Quality Index", color='avg_overall_rating',
                                color_continuous_scale=[SAFFRON_GOLD, MINT_GARNISH], text='total_orders',
                                labels={'total_orders': 'Total Completed Orders', 'restaurant_name': 'Merchant Name', 'avg_overall_rating': 'Avg Rating'})
     fig_top_merchants.update_traces(textposition='outside', cliponaxis=False, texttemplate='%{text:,}')
@@ -424,6 +452,13 @@ elif page == "📈 Operational Velocities":
 elif page == "💰 Net Financial Performance":
     st.title("💰 Capital Ledger, Seasonal Trends & Promo ROI")
     st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Comprehensive macroeconomic ledger tracking cumulative net profits, chronological demand shifts (including Ramadan seasonality), and the ROI efficiency of promotional subsidization.</p>", unsafe_allow_html=True)
+    
+    st.markdown(f"""
+    <div class="insight-box">
+        <b>💡 Executive Conclusion: Seasonal Timing & Campaign Efficiency</b><br>
+        Organic (no promo) orders form the financial bedrock of the platform. However, the data reveals a massive seasonal inversion during Ramadan—the standard 13:00 lunch rush completely collapses, replaced by a concentrated 19:00 Iftar peak. During this window, the <b>RAMADAN15</b> voucher proved to be the most efficient user acquisition tool in our portfolio.
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown("---")
     
     st.markdown("<div class='board-card'>", unsafe_allow_html=True)
