@@ -160,7 +160,7 @@ df_filtered = df_clean[
 # ==========================================
 if page == "📌 Expansion Strategy Mandate":
     st.title("🎯 Strategic Regional Expansion Recommendation")
-    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Executive overview of geographic financial health, determining the optimal region for capital expansion based on actual realized profit rather than misleading top-line gross volumes.</p>", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Executive overview of geographic financial health, determining the optimal region for capital expansion based on actual realized profit rather than misleading top-line gross volumes.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
