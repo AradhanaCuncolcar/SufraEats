@@ -102,6 +102,8 @@ st.markdown(f"""
     [data-testid="stMetricLabel"] {{ font-size: 13px !important; text-transform: uppercase; letter-spacing: 0.8px; color: #FFFFFF !important; font-weight: 600; }}
 </style>
 """, unsafe_allow_html=True)
+
+
 # ==========================================
 # DATA LOADING & CACHING PIPELINE
 # ==========================================
@@ -336,6 +338,54 @@ if page == "📌 Expansion Strategy Mandate":
             """, unsafe_allow_html=True)
 
         min_profit_bound = min(0, zone_perf['total_profit'].min() * 1.2)
+
+    # ==========================================
+    # STRATEGIC EXECUTION: THREE PILLARS
+    # ==========================================
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown(f"""
+        <div style="border-left: 5px solid {SUFRA_CRIMSON}; padding-left: 15px; margin-bottom: 20px;">
+            <h2 style='margin: 0; color: #FFFFFF; text-transform: uppercase; letter-spacing: 1px;'>Three Pillars For Success</h2>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    col_p1, col_p2, col_p3 = st.columns(3)
+    
+    with col_p1:
+        st.markdown(f"""
+        <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start;">
+            <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <span style="font-size: 22px;">💼</span>
+            </div>
+            <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">B2B Corporate Program</h4>
+            <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Launch targeted group-order subscriptions and corporate lunch bundles for multinational offices in Business Bay towers.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_p2:
+        st.markdown(f"""
+        <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start;">
+            <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <span style="font-size: 22px;">⏱️</span>
+            </div>
+            <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">Pace Routing</h4>
+            <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Deploy optimized office-lobby delivery drop point protocols to shave critical minutes off high-rise office runtimes.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_p3:
+        st.markdown(f"""
+        <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start;">
+            <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <span style="font-size: 22px;">🥗</span>
+            </div>
+            <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">Healthy Curation</h4>
+            <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Onboard healthy, premium office lunch brands (salads, bowls, sushi) to capture daytime wellness consumer spends.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+
         
         st.markdown("<div class='board-card'>", unsafe_allow_html=True)
         st.markdown("### 🔍 Strategic Context: The Gross vs. Net Profit Illusion")
