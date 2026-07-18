@@ -292,7 +292,7 @@ if df_filtered.empty:
 # ==========================================
 if page == "📌 Expansion Strategy Mandate":
     st.title("🎯 Strategic Regional Expansion Recommendation")
-    #st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Executive overview of geographic financial health, determining the optimal region for capital expansion based on actual realized profit rather than misleading top-line gross volumes.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 16px; color: #A0AEC0;'>Executive overview of geographic financial health, determining the optimal region for capital expansion based on actual realized profit rather than misleading top-line gross volumes.</p>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="insight-box">
@@ -313,10 +313,11 @@ if page == "📌 Expansion Strategy Mandate":
     if not zone_perf.empty:
         recommended_zone = zone_perf.sort_values(by='total_profit', ascending=False).iloc[0]['zone']
         
+        # --- TOP SECTION: EXECUTIVE CARDS ---
         col1, col2 = st.columns(2)
         with col1:
             st.markdown(f"""
-            <div class="board-card board-card-accent">
+            <div class="board-card board-card-accent" style="height: 100%; margin-bottom: 0;">
                 <h3 style='margin-top: 0; color: {SUFRA_CRIMSON} !important;'>🏆 DATA MANDATE SELECTOR</h3>
                 <p style='color: #FFFFFF;'>Optimizing for bottom-line margin retention and real platform profit parameters over 5 months, our analytics engine identifies the ideal investment hub location as:</p>
                 <h2 style='color: {SUFRA_CRIMSON}; margin: 10px 0; font-size: 38px; letter-spacing: -1px;'>{recommended_zone.upper()}</h2>
@@ -328,65 +329,20 @@ if page == "📌 Expansion Strategy Mandate":
                 </table>
             </div>
             """, unsafe_allow_html=True)
+            
         with col2:
             st.markdown(f"""
-            <div class="board-card" style="height: 100%; background-color: #111827; border-color: #374151;">
+            <div class="board-card" style="height: 100%; background-color: #111827; border-color: #374151; margin-bottom: 0;">
                 <h4 style='color: #FFFFFF !important; margin-top: 0;'>📊 Brand Health Optimization Logic</h4>
-                <p style='font-size: 14px; line-height: 1.6; color: #FFFFFF;'>Top-line order numbers or simple gross volume figures create dangerous illusions in high-frequency delivery markets. A specific district might show massive transaction counts while silently running at a deficit due to persistent discount promo loops, operational cancellation liabilities, and customer support refunds. 
+                <p style='font-size: 14px; line-height: 1.6; color: #FFFFFF;'>Top-line order numbers or simple gross volume figures create dangerous illusions in high-frequency delivery markets. A specific district might show massive transaction counts while silently running at a deficit due to persistent discount promo loops, operational cancellation liabilities, and customer support refunds.<br><br>
                 SufraEats chooses <b>{recommended_zone.upper()}</b> because it successfully translates market demand into true corporate net value.</p>
             </div>
             """, unsafe_allow_html=True)
 
+        st.markdown("<br>", unsafe_allow_html=True)
         min_profit_bound = min(0, zone_perf['total_profit'].min() * 1.2)
-
-    # ==========================================
-    # STRATEGIC EXECUTION: THREE PILLARS
-    # ==========================================
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown(f"""
-        <div style="border-left: 5px solid {SUFRA_CRIMSON}; padding-left: 15px; margin-bottom: 20px;">
-            <h2 style='margin: 0; color: #FFFFFF; text-transform: uppercase; letter-spacing: 1px;'>Three Pillars For Success</h2>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    col_p1, col_p2, col_p3 = st.columns(3)
-    
-    with col_p1:
-        st.markdown(f"""
-        <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start;">
-            <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                <span style="font-size: 22px;">💼</span>
-            </div>
-            <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">B2B Corporate Program</h4>
-            <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Launch targeted group-order subscriptions and corporate lunch bundles for multinational offices in Business Bay towers.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_p2:
-        st.markdown(f"""
-        <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start;">
-            <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                <span style="font-size: 22px;">⏱️</span>
-            </div>
-            <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">Pace Routing</h4>
-            <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Deploy optimized office-lobby delivery drop point protocols to shave critical minutes off high-rise office runtimes.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_p3:
-        st.markdown(f"""
-        <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start;">
-            <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                <span style="font-size: 22px;">🥗</span>
-            </div>
-            <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">Healthy Curation</h4>
-            <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Onboard healthy, premium office lunch brands (salads, bowls, sushi) to capture daytime wellness consumer spends.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-
-
         
+        # --- MIDDLE SECTION: CHARTS ---
         st.markdown("<div class='board-card'>", unsafe_allow_html=True)
         st.markdown("### 🔍 Strategic Context: The Gross vs. Net Profit Illusion")
         fig_illusion = go.Figure()
@@ -408,6 +364,52 @@ if page == "📌 Expansion Strategy Mandate":
         fig_zone_prof = apply_board_theme(fig_zone_prof)
         st.plotly_chart(fig_zone_prof, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
+
+        # --- BOTTOM SECTION: THREE PILLARS ---
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(f"""
+            <div style="border-left: 5px solid {SUFRA_CRIMSON}; padding-left: 15px; margin-bottom: 20px;">
+                <h2 style='margin: 0; color: #FFFFFF; text-transform: uppercase; letter-spacing: 1px;'>Three Pillars For Success</h2>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col_p1, col_p2, col_p3 = st.columns(3)
+        
+        with col_p1:
+            st.markdown(f"""
+            <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 0;">
+                <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <span style="font-size: 22px;">💼</span>
+                </div>
+                <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">B2B Corporate Program</h4>
+                <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Launch targeted group-order subscriptions and corporate lunch bundles for multinational offices in Business Bay towers.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with col_p2:
+            st.markdown(f"""
+            <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 0;">
+                <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <span style="font-size: 22px;">⏱️</span>
+                </div>
+                <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">Pace Routing</h4>
+                <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Deploy optimized office-lobby delivery drop point protocols to shave critical minutes off high-rise office runtimes.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with col_p3:
+            st.markdown(f"""
+            <div class="board-card" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 0;">
+                <div style="background-color: rgba(34, 197, 94, 0.15); width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <span style="font-size: 22px;">🥗</span>
+                </div>
+                <h4 style="color: #FFFFFF; margin-top: 0; margin-bottom: 10px;">Healthy Curation</h4>
+                <p style="color: #A0AEC0; font-size: 14px; line-height: 1.6; margin: 0;">Onboard healthy, premium office lunch brands (salads, bowls, sushi) to capture daytime wellness consumer spends.</p>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.warning("⚠️ No data available for the selected filters.")
+
 
 # ==========================================
 # PAGE 2: TARGET CUSTOMER INSIGHTS
